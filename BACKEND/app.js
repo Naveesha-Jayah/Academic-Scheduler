@@ -7,6 +7,8 @@ require("dotenv").config();
 const timeTableRoute = require("./Route/timeTableRoute");
 const courseRoute = require("./Route/courseRoute");
 const lectureRoute = require("./Route/lectureRoute");
+const roomRoute = require("./Route/roomRoute");
+const resourceRoute = require("./Route/resourceRoute");
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(express.json());
 app.use("/api/timeTable", timeTableRoute);
 app.use("/api/course",courseRoute);
 app.use("/api/lecture",lectureRoute);
+app.use("/api/room",roomRoute);
+app.use("/resources",resourceRoute);
 
 //database connection
 mongoose

@@ -1,85 +1,105 @@
 import React, { useState } from "react";
 
 const RoomManagement = () => {
-  const apiUrl = "http://localhost:5000/rooms"; // Adjust API endpoint as needed
+  const [formData, setFormData] = useState({
+    roomName: "",
+    type: "",
+    capacity: "",
+    availabilityStatus: "",
+  });
 
-  const [roomName, setRoomName] = useState("");
-  const [type, setType] = useState("");
-  const [capacity, setCapacity] = useState("");
-  const [availability, setAvailability] = useState("");
-  const [roomId, setRoomId] = useState("");
-  const [roomData, setRoomData] = useState(null);
-  const [updateRoomId, setUpdateRoomId] = useState("");
-  const [updateRoomName, setUpdateRoomName] = useState("");
-  const [deleteRoomId, setDeleteRoomId] = useState("");
+  const [rooms, setRooms] = useState([
+    { id: 1, roomName: "Room A", type: "Conference", capacity: "10", availabilityStatus: "Available" },
+    { id: 2, roomName: "Room B", type: "Meeting", capacity: "5", availabilityStatus: "Occupied" },
+  ]);
 
-  // Add Room
-  const addRoom = async (e) => {
-    e.preventDefault();
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomName, type, capacity, availibilityStatus: availability }),
-    });
-
-    if (response.ok) alert("Room Added Successfully");
-    else alert("Error Adding Room");
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Get Room by ID
-  const fetchRoomById = async () => {
-    const response = await fetch(`${apiUrl}/${roomId}`);
-    const data = await response.json();
-    setRoomData(response.ok ? data : "Room Not Found");
-  };
-
-  // Update Room
-  const updateRoom = async (e) => {
-    e.preventDefault();
-    const response = await fetch(`${apiUrl}/${updateRoomId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomName: updateRoomName }),
-    });
-
-    if (response.ok) alert("Room Updated Successfully");
-    else alert("Error Updating Room");
-  };
-
-  // Delete Room
-  const deleteRoom = async () => {
-    const response = await fetch(`${apiUrl}/${deleteRoomId}`, { method: "DELETE" });
-
-    if (response.ok) alert("Room Deleted Successfully");
-    else alert("Error Deleting Room");
+  const handleAddRoom = () => {
+    setRooms([...rooms, { id: rooms.length + 1, ...formData }]);
+    setFormData({ roomName: "", type: "", capacity: "", availabilityStatus: "" });
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "400px", margin: "auto" }}>
-      <h2>Add Room</h2>
-      <form onSubmit={addRoom}>
-        <input type="text" placeholder="Room Name" value={roomName} onChange={(e) => setRoomName(e.target.value)} required />
-        <input type="text" placeholder="Type" value={type} onChange={(e) => setType(e.target.value)} required />
-        <input type="text" placeholder="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
-        <input type="text" placeholder="Availability Status" value={availability} onChange={(e) => setAvailability(e.target.value)} required />
-        <button type="submit">Add Room</button>
-      </form>
+    <div className="p-6 bg-gray-900 text-white min-h-screen">
+      <h2 className="text-xl font-bold mb-4">Room Management</h2>
+      
+      {/* Add/Edit Room Form */}
+      <div className="bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+        <h3 className="text-lg font-semibold mb-2">Add or Edit Room</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="roomName"
+            placeholder="Room Name"
+            value={formData.roomName}
+            onChange={handleInputChange}
+            className="p-2 rounded border border-gray-600 bg-gray-700"
+          />
+          <input
+            type="text"
+            name="type"
+            placeholder="Type"
+            value={formData.type}
+            onChange={handleInputChange}
+            className="p-2 rounded border border-gray-600 bg-gray-700"
+          />
+          <input
+            type="text"
+            name="capacity"
+            placeholder="Capacity"
+            value={formData.capacity}
+            onChange={handleInputChange}
+            className="p-2 rounded border border-gray-600 bg-gray-700"
+          />
+          <input
+            type="text"
+            name="availabilityStatus"
+            placeholder="Availability Status"
+            value={formData.availabilityStatus}
+            onChange={handleInputChange}
+            className="p-2 rounded border border-gray-600 bg-gray-700"
+          />
+        </div>
+        <button
+          onClick={handleAddRoom}
+          className="mt-4 w-full bg-purple-600 p-2 rounded text-white font-semibold"
+        >
+          Add Room
+        </button>
+      </div>
 
-      <h2>Get Room by ID</h2>
-      <input type="text" placeholder="Enter Room ID" value={roomId} onChange={(e) => setRoomId(e.target.value)} />
-      <button onClick={fetchRoomById}>Get Room</button>
-      {roomData && <p>{JSON.stringify(roomData)}</p>}
-
-      <h2>Update Room</h2>
-      <form onSubmit={updateRoom}>
-        <input type="text" placeholder="Room ID" value={updateRoomId} onChange={(e) => setUpdateRoomId(e.target.value)} required />
-        <input type="text" placeholder="New Room Name" value={updateRoomName} onChange={(e) => setUpdateRoomName(e.target.value)} required />
-        <button type="submit">Update Room</button>
-      </form>
-
-      <h2>Delete Room</h2>
-      <input type="text" placeholder="Enter Room ID" value={deleteRoomId} onChange={(e) => setDeleteRoomId(e.target.value)} />
-      <button onClick={deleteRoom}>Delete Room</button>
+      {/* Room List */}
+      <div className="bg-gray-800 p-4 rounded-lg shadow-md">
+        <h3 className="text-lg font-semibold mb-2">Room List</h3>
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-gray-700">
+              <th className="p-2">Room Name</th>
+              <th className="p-2">Type</th>
+              <th className="p-2">Capacity</th>
+              <th className="p-2">Availability</th>
+              <th className="p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rooms.map((room) => (
+              <tr key={room.id} className="border-t border-gray-600">
+                <td className="p-2">{room.roomName}</td>
+                <td className="p-2">{room.type}</td>
+                <td className="p-2">{room.capacity}</td>
+                <td className="p-2">{room.availabilityStatus}</td>
+                <td className="p-2">
+                  <button className="bg-yellow-500 px-3 py-1 rounded text-white mr-2">Edit</button>
+                  <button className="bg-red-600 px-3 py-1 rounded text-white">Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
