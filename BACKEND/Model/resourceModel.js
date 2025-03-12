@@ -8,7 +8,7 @@ const resourceSchema = new schema({
         required: true
     },
 
-    roomType: {
+    type: {
         type: String,
         required: true
     },
