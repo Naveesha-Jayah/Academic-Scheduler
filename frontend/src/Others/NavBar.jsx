@@ -82,7 +82,7 @@ const NavBar = () => {
             </li>
             <li>
               <Link
-                to="/courses"
+                to="/Course"
                 className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
               >
                 📚 Courses & Lecturers
@@ -90,7 +90,7 @@ const NavBar = () => {
             </li>
             <li>
               <Link
-                to="/schedule"
+                to="/TimeTable"
                 className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
               >
                 📅 Timetable Schedule

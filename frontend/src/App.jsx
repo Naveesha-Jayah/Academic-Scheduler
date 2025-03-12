@@ -2,6 +2,9 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import NavBar from "./Others/NavBar";
 import Footer from "./Others/Footer";
+import Course from "./Components/Course & Lecturer Management/CourseManagement"
+import Lecture from "./Components/Course & Lecturer Management/LectureManagement"
+import TimeTableManagement from "./Components/Course & Lecturer Management/TimeTableManagement ";
 
 const App = () => {
   return (
@@ -9,7 +12,9 @@ const App = () => {
       <NavBar />
       <main className="flex-1 p-6 md:p-10 bg-base-100">
         <Routes>
-          {/* Your routes here */}
+          <Route path = "/Course" element={<Course/>} />
+          <Route path = "/Lecture" element={<Lecture/>} />
+          <Route path ="/TimeTable" element={<TimeTableManagement/>} />
         </Routes>
       </main>
       <Footer />
