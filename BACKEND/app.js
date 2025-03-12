@@ -5,6 +5,8 @@ const cors = require("cors");
 require("dotenv").config();
 
 const timeTableRoute = require("./Route/timeTableRoute");
+const courseRoute = require("./Route/courseRoute");
+const lectureRoute = require("./Route/lectureRoute");
 
 const app = express();
 
@@ -13,7 +15,9 @@ app.use(express.json());
 
 //middleware
 
-app.use("/timeTable", timeTableRoute);
+app.use("/api/timeTable", timeTableRoute);
+app.use("/api/course",courseRoute);
+app.use("/api/lecture",lectureRoute);
 
 //database connection
 mongoose
