@@ -6,7 +6,7 @@ import Course from "./Components/Course & Lecturer Management/CourseManagement"
 import Lecture from "./Components/Course & Lecturer Management/LectureManagement"
 import TimeTableManagement from "./Components/Course & Lecturer Management/TimeTableManagement "
 import Room from "./Components/Room & Resource Management/RoomManagement"
-import Resource from "./Components/Room & Resource Management/ResourceManagement"
+import Resource from "./Components/Room & Resource Management/ResourceManagement";
 
 
 const App = () => {
