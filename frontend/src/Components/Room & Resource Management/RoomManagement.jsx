@@ -1,107 +1,102 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 
-const RoomManagement = () => {
-  const [formData, setFormData] = useState({
-    roomName: "",
-    type: "",
-    capacity: "",
-    availabilityStatus: "",
-  });
+export default function RoomManagement() {
+  const [rooms, setRooms] = useState([]);
+  const [roomName, setRoomName] = useState("");
+  const [type, setType] = useState("");
+  const [capacity, setCapacity] = useState("");
+  const [availabilityStatus, setAvailabilityStatus] = useState("");
+  const [editingRoomId, setEditingRoomId] = useState(null);
 
-  const [rooms, setRooms] = useState([
-    { id: 1, roomName: "Room A", type: "Conference", capacity: "10", availabilityStatus: "Available" },
-    { id: 2, roomName: "Room B", type: "Meeting", capacity: "5", availabilityStatus: "Occupied" },
-  ]);
+  useEffect(() => {
+    fetchRooms();
+  }, []);
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const fetchRooms = async () => {
+    const response = await fetch("/api/rooms");
+    const data = await response.json();
+    setRooms(data);
   };
 
-  const handleAddRoom = () => {
-    setRooms([...rooms, { id: rooms.length + 1, ...formData }]);
-    setFormData({ roomName: "", type: "", capacity: "", availabilityStatus: "" });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const method = editingRoomId ? "PUT" : "POST";
+    const url = editingRoomId ? `/api/rooms/${editingRoomId}` : "/api/rooms";
+
+    const response = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomName, type, capacity, availabilityStatus }),
+    });
+
+    if (response.ok) {
+      fetchRooms();
+      setRoomName("");
+      setType("");
+      setCapacity("");
+      setAvailabilityStatus("");
+      setEditingRoomId(null);
+    }
+  };
+
+  const handleEdit = (room) => {
+    setEditingRoomId(room._id);
+    setRoomName(room.roomName);
+    setType(room.type);
+    setCapacity(room.capacity);
+    setAvailabilityStatus(room.availabilityStatus);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this room?")) {
+      await fetch(`/api/rooms/${id}`, { method: "DELETE" });
+      fetchRooms();
+    }
   };
 
   return (
-    <div className="p-6 bg-gray-900 text-white min-h-screen">
-      <h2 className="text-xl font-bold mb-4">Room Management</h2>
-      
-      {/* Add/Edit Room Form */}
-      <div className="bg-gray-800 p-4 rounded-lg shadow-md mb-6">
-        <h3 className="text-lg font-semibold mb-2">Add or Edit Room</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="roomName"
-            placeholder="Room Name"
-            value={formData.roomName}
-            onChange={handleInputChange}
-            className="p-2 rounded border border-gray-600 bg-gray-700"
-          />
-          <input
-            type="text"
-            name="type"
-            placeholder="Type"
-            value={formData.type}
-            onChange={handleInputChange}
-            className="p-2 rounded border border-gray-600 bg-gray-700"
-          />
-          <input
-            type="text"
-            name="capacity"
-            placeholder="Capacity"
-            value={formData.capacity}
-            onChange={handleInputChange}
-            className="p-2 rounded border border-gray-600 bg-gray-700"
-          />
-          <input
-            type="text"
-            name="availabilityStatus"
-            placeholder="Availability Status"
-            value={formData.availabilityStatus}
-            onChange={handleInputChange}
-            className="p-2 rounded border border-gray-600 bg-gray-700"
-          />
-        </div>
-        <button
-          onClick={handleAddRoom}
-          className="mt-4 w-full bg-purple-600 p-2 rounded text-white font-semibold"
-        >
-          Add Room
+    <div className="p-6 bg-gray-900 text-white">
+      <h2 className="text-xl font-bold">{editingRoomId ? "Edit Room" : "Add New Room"}</h2>
+      <form className="flex flex-col gap-4 p-4 bg-gray-800 rounded" onSubmit={handleSubmit}>
+        <input type="text" placeholder="Room Name" className="p-2 rounded bg-gray-700" value={roomName} onChange={(e) => setRoomName(e.target.value)} required />
+        <input type="text" placeholder="Type" className="p-2 rounded bg-gray-700" value={type} onChange={(e) => setType(e.target.value)} required />
+        <input type="number" placeholder="Capacity" className="p-2 rounded bg-gray-700" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
+        <input type="text" placeholder="Availability Status" className="p-2 rounded bg-gray-700" value={availabilityStatus} onChange={(e) => setAvailabilityStatus(e.target.value)} required />
+        <button type="submit" className="p-2 bg-blue-600 rounded">
+          {editingRoomId ? "Update Room" : "Add Room"}
         </button>
-      </div>
+      </form>
 
-      {/* Room List */}
-      <div className="bg-gray-800 p-4 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-2">Room List</h3>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-700">
-              <th className="p-2">Room Name</th>
-              <th className="p-2">Type</th>
-              <th className="p-2">Capacity</th>
-              <th className="p-2">Availability</th>
-              <th className="p-2">Actions</th>
+      <h2 className="text-xl font-bold mt-6">Room List</h2>
+      <table className="w-full mt-4 bg-gray-800 rounded">
+        <thead>
+          <tr className="text-left bg-gray-700">
+            <th className="p-2">Room Name</th>
+            <th className="p-2">Type</th>
+            <th className="p-2">Capacity</th>
+            <th className="p-2">Status</th>
+            <th className="p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rooms.map((room) => (
+            <tr key={room._id} className="border-t border-gray-700">
+              <td className="p-2">{room.roomName}</td>
+              <td className="p-2">{room.type}</td>
+              <td className="p-2">{room.capacity}</td>
+              <td className="p-2">{room.availabilityStatus}</td>
+              <td className="p-2">
+                <button className="p-1 bg-yellow-500 text-black rounded mx-1" onClick={() => handleEdit(room)}>
+                  Edit
+                </button>
+                <button className="p-1 bg-red-600 text-white rounded mx-1" onClick={() => handleDelete(room._id)}>
+                  Delete
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {rooms.map((room) => (
-              <tr key={room.id} className="border-t border-gray-600">
-                <td className="p-2">{room.roomName}</td>
-                <td className="p-2">{room.type}</td>
-                <td className="p-2">{room.capacity}</td>
-                <td className="p-2">{room.availabilityStatus}</td>
-                <td className="p-2">
-                  <button className="bg-yellow-500 px-3 py-1 rounded text-white mr-2">Edit</button>
-                  <button className="bg-red-600 px-3 py-1 rounded text-white">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-};
-
-export default RoomManagement;
+}

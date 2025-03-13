@@ -13,12 +13,12 @@ const resourceSchema = new schema({
         required: true
     },
 
-    projectors: {
+    Computers: {
         type: String,
         required: true
     },
 
-    computers: {
+    projectors: {
         type: String,
         required: true
     },
@@ -26,9 +26,9 @@ const resourceSchema = new schema({
     whiteboards: {
         type: String,
         required: true
-    },
+    }, 
 
-    presentationSoftware: {
+    presentationSystem: {
         type: String,
         required: true
     },

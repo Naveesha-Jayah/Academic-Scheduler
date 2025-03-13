@@ -21,7 +21,7 @@ app.use("/api/timeTable", timeTableRoute);
 app.use("/api/course",courseRoute);
 app.use("/api/lecture",lectureRoute);
 app.use("/api/room",roomRoute);
-app.use("/resources",resourceRoute);
+app.use("/api/resource",resourceRoute);
 
 //database connection
 mongoose
