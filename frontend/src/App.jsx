@@ -4,7 +4,7 @@ import NavBar from "./Others/NavBar";
 import Footer from "./Others/Footer";
 import Course from "./Components/Course & Lecturer Management/CourseManagement"
 import Lecture from "./Components/Course & Lecturer Management/LectureManagement"
-import TimeTableManagement from "./Components/Course & Lecturer Management/TimeTableManagement ";
+import TimeTableManagement from "./Components/Timetable Scheduling/TimeTableManagement ";
 
 const App = () => {
   return (
