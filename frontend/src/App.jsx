@@ -4,7 +4,10 @@ import NavBar from "./Others/NavBar";
 import Footer from "./Others/Footer";
 import Course from "./Components/Course & Lecturer Management/CourseManagement"
 import Lecture from "./Components/Course & Lecturer Management/LectureManagement"
-import TimeTableManagement from "./Components/Course & Lecturer Management/TimeTableManagement ";
+import TimeTableManagement from "./Components/Course & Lecturer Management/TimeTableManagement "
+import Room from "./Components/Room & Resource Management/RoomManagement"
+import Resource from "./Components/Room & Resource Management/ResourceManagement";
+
 
 const App = () => {
   return (
@@ -15,6 +18,8 @@ const App = () => {
           <Route path = "/Course" element={<Course/>} />
           <Route path = "/Lecture" element={<Lecture/>} />
           <Route path ="/TimeTable" element={<TimeTableManagement/>} />
+          <Route path ="/Room" element={<Room/>} />
+          <Route path ="/Resource" element={<Resource/>} />
         </Routes>
       </main>
       <Footer />
