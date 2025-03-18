@@ -5,8 +5,8 @@ import Footer from "./Others/Footer";
 import Course from "./Components/Course & Lecturer Management/CourseManagement"
 import Lecture from "./Components/Course & Lecturer Management/LectureManagement"
 import TimeTable from "./Components/Timetable Scheduling/TimeTableManagement ";
-import Room from "./Components/Room & Resource Management/RoomManagement"
 import Resource from "./Components/Room & Resource Management/ResourceManagement";
+import Room from "./Components/Room & Resource Management/RoomManagement"
 
 
 
