@@ -1,92 +1,79 @@
-const room = require("../Model/roomModel")
+const Room = require("../Model/roomModel");
 
-
-const getRoom = async (req, res , next) => {
-    let roomData;
-    try{
-        roomData = await room.find();
-    } catch (error) {
-        console.log(error);
-    }
-
-    if (!roomData) {
-        return res.status(404).json({ message: "No data found" });
-    }
-
-    return res.status(200).json(roomData);
-};
-
-const addRoom = async (req, res , next) => {
-    const {roomName} = req.body;
-    let roomData;
-    try{
-        roomData = new room({roomName});
-        await roomData.save();
-    } catch (error) {
-        console.log(error);
-    }
-
-    if (!roomData) {
-        return res.status(404).json({ message: "No data found" });
-    }
-
-    return res.status(200).json(roomData);
-};
-
-const getRoomById = async (req, res, next) => {
-    const roomId = req.params.id;
-    let roomData;
-    try{
-        roomData = await room.findById(roomId);
-    } catch (error) {
-        console.log(error);
-    }
-
-    if (!roomData) {
-        return res.status(404).json({ message: "No data found" });
-    }
-
-    return res.status(200).json(roomData);
-};
-
-const updateRoom = async (req, res, next) => {
-    const roomId = req.params.id;
-    const {roomName} = req.body;
-    let roomData;
-    try{
-        roomData = await room.findByIdAndUpdate(roomId, {roomName});
-        roomData = await roomData.save(); 
-    } catch (error) {
-        console.log(error);
-    }
-
-    if (!roomData) {
-        return res.status(404).json({ message: "No data found" });
-    } else {
+// Get all rooms
+const getRoom = async (req, res) => {
+    try {
+        const roomData = await Room.find();
+        if (!roomData.length) {
+            return res.status(404).json({ message: "No rooms found" });
+        }
         return res.status(200).json(roomData);
-    }
-};
-
-const deleteRoom = async (req, res, next) => {
-    const roomId = req.params.id;
-    let roomData;
-    try{
-        roomData = await room.findByIdAndDelete(roomId);
     } catch (error) {
-        console.log(error);
-    }
-
-    if (!roomData) {    
-        return res.status(404).json({ message: "No data found" });
-    } else {
-        return res.status(200).json(roomData);
+        return res.status(500).json({ message: error.message });
     }
 };
 
+// Get room by ID
+const getRoomById = async (req, res) => {
+    try {
+        const roomData = await Room.findById(req.params.id);
+        if (!roomData) {
+            return res.status(404).json({ message: "Room not found" });
+        }
+        return res.status(200).json(roomData);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
 
+// Add a new room
+const addRoom = async (req, res) => {
+    try {
+        const { roomName, type, capacity, availabilityStatus } = req.body;
 
-exports.getRoom = getRoom;
-exports.addRoom = addRoom;
-exports.getRoomById = getRoomById;
-exports.updateRoom = updateRoom;
-exports.deleteRoom = deleteRoom;
+        // Validation
+        if (!roomName || !type || !capacity || availabilityStatus === undefined) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        const newRoom = new Room({ roomName, type, capacity, availabilityStatus });
+        await newRoom.save();
+        return res.status(201).json(newRoom);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// Update room details
+const updateRoom = async (req, res) => {
+    try {
+        const { roomName, type, capacity, availabilityStatus } = req.body;
+        const roomData = await Room.findByIdAndUpdate(
+            req.params.id,
+            { roomName, type, capacity, availabilityStatus },
+            { new: true, runValidators: true }
+        );
+
+        if (!roomData) {
+            return res.status(404).json({ message: "Room not found" });
+        }
+        return res.status(200).json(roomData);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// Delete a room
+const deleteRoom = async (req, res) => {
+    try {
+        const roomData = await Room.findByIdAndDelete(req.params.id);
+        if (!roomData) {
+            return res.status(404).json({ message: "Room not found" });
+        }
+        return res.status(200).json({ message: "Room deleted successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getRoom, getRoomById, addRoom, updateRoom, deleteRoom };

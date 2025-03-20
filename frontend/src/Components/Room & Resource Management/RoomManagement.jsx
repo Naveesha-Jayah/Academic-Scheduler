@@ -1,102 +1,204 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../../Lib/axios";
+import jsPDF from "jspdf";
+// import "jspdf-autotable";
 
-export default function RoomManagement() {
-  const [rooms, setRooms] = useState([]);
-  const [roomName, setRoomName] = useState("");
-  const [type, setType] = useState("");
-  const [capacity, setCapacity] = useState("");
-  const [availabilityStatus, setAvailabilityStatus] = useState("");
-  const [editingRoomId, setEditingRoomId] = useState(null);
+const RoomManagement = () => {
+  const [rooms, setRooms] = useState([]); // Ensure initial state is an array
+  const [form, setForm] = useState({
+    roomName: "",
+    type: "",
+    capacity: "",
+    availabilityStatus: false,
+  });
+  const [editingRoom, setEditingRoom] = useState(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchRooms();
   }, []);
 
   const fetchRooms = async () => {
-    const response = await fetch("/api/rooms");
-    const data = await response.json();
-    setRooms(data);
+    try {
+      const response = await axiosInstance.get("/api/room");
+      console.log("Fetched Rooms:", response.data); // Debugging
+      setRooms(Array.isArray(response.data) ? response.data : []); // Ensure array
+    } catch (error) {
+      console.error("Error fetching rooms", error);
+      setRooms([]); // Prevent filter errors
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
+    setForm({
+      ...form,
+      [name]: type === "checkbox" ? e.target.checked : value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const method = editingRoomId ? "PUT" : "POST";
-    const url = editingRoomId ? `/api/rooms/${editingRoomId}` : "/api/rooms";
-
-    const response = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomName, type, capacity, availabilityStatus }),
-    });
-
-    if (response.ok) {
+    try {
+      if (editingRoom) {
+        await axiosInstance.put(`/api/room/${editingRoom._id}`, form);
+      } else {
+        await axiosInstance.post("/api/room", form);
+      }
+      setForm({ roomName: "", type: "", capacity: "", availabilityStatus: false });
+      setEditingRoom(null);
       fetchRooms();
-      setRoomName("");
-      setType("");
-      setCapacity("");
-      setAvailabilityStatus("");
-      setEditingRoomId(null);
+    } catch (error) {
+      console.error("Error saving room", error);
     }
   };
 
   const handleEdit = (room) => {
-    setEditingRoomId(room._id);
-    setRoomName(room.roomName);
-    setType(room.type);
-    setCapacity(room.capacity);
-    setAvailabilityStatus(room.availabilityStatus);
+    setForm(room);
+    setEditingRoom(room);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this room?")) {
-      await fetch(`/api/rooms/${id}`, { method: "DELETE" });
+    try {
+      await axiosInstance.delete(`/api/room/${id}`);
       fetchRooms();
+    } catch (error) {
+      console.error("Error deleting room", error);
     }
   };
 
-  return (
-    <div className="p-6 bg-gray-900 text-white">
-      <h2 className="text-xl font-bold">{editingRoomId ? "Edit Room" : "Add New Room"}</h2>
-      <form className="flex flex-col gap-4 p-4 bg-gray-800 rounded" onSubmit={handleSubmit}>
-        <input type="text" placeholder="Room Name" className="p-2 rounded bg-gray-700" value={roomName} onChange={(e) => setRoomName(e.target.value)} required />
-        <input type="text" placeholder="Type" className="p-2 rounded bg-gray-700" value={type} onChange={(e) => setType(e.target.value)} required />
-        <input type="number" placeholder="Capacity" className="p-2 rounded bg-gray-700" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
-        <input type="text" placeholder="Availability Status" className="p-2 rounded bg-gray-700" value={availabilityStatus} onChange={(e) => setAvailabilityStatus(e.target.value)} required />
-        <button type="submit" className="p-2 bg-blue-600 rounded">
-          {editingRoomId ? "Update Room" : "Add Room"}
-        </button>
-      </form>
+  const generateReport = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Room List Report", 20, 20);
+    doc.autoTable({
+      startY: 30,
+      head: [["Room Name", "Type", "Capacity", "Availability"]],
+      body: rooms.map((room) => [
+        room.roomName,
+        room.type,
+        room.capacity,
+        room.availabilityStatus ? "Available" : "Unavailable",
+      ]),
+    });
+    doc.save("room_report.pdf");
+  };
 
-      <h2 className="text-xl font-bold mt-6">Room List</h2>
-      <table className="w-full mt-4 bg-gray-800 rounded">
-        <thead>
-          <tr className="text-left bg-gray-700">
-            <th className="p-2">Room Name</th>
-            <th className="p-2">Type</th>
-            <th className="p-2">Capacity</th>
-            <th className="p-2">Status</th>
-            <th className="p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rooms.map((room) => (
-            <tr key={room._id} className="border-t border-gray-700">
-              <td className="p-2">{room.roomName}</td>
-              <td className="p-2">{room.type}</td>
-              <td className="p-2">{room.capacity}</td>
-              <td className="p-2">{room.availabilityStatus}</td>
-              <td className="p-2">
-                <button className="p-1 bg-yellow-500 text-black rounded mx-1" onClick={() => handleEdit(room)}>
-                  Edit
-                </button>
-                <button className="p-1 bg-red-600 text-white rounded mx-1" onClick={() => handleDelete(room._id)}>
-                  Delete
-                </button>
-              </td>
+  return (
+    <div className="container mx-auto p-8">
+      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Room Management</h1>
+
+      {/* Add Room Form */}
+      <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">Add or Edit Room</h2>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <input
+            type="text"
+            name="roomName"
+            value={form.roomName}
+            onChange={handleChange}
+            placeholder="Room Name"
+            className="border-2 border-gray-300 p-3 rounded-md"
+            required
+          />
+          <input
+            type="text"
+            name="type"
+            value={form.type}
+            onChange={handleChange}
+            placeholder="Type"
+            className="border-2 border-gray-300 p-3 rounded-md"
+            required
+          />
+          <input
+            type="number"
+            name="capacity"
+            value={form.capacity}
+            onChange={handleChange}
+            placeholder="Capacity"
+            className="border-2 border-gray-300 p-3 rounded-md"
+            required
+          />
+          <label className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              name="availabilityStatus"
+              checked={form.availabilityStatus}
+              onChange={handleChange}
+              className="h-5 w-5 text-indigo-600"
+            />
+            <span className="text-gray-700">Available</span>
+          </label>
+          <button
+            type="submit"
+            className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 sm:col-span-2"
+          >
+            {editingRoom ? "Update Room" : "Add Room"}
+          </button>
+        </form>
+      </div>
+
+      {/* Room List Table */}
+      <div className="bg-white shadow-lg rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">Room List</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <input
+            type="text"
+            placeholder="Search rooms..."
+            className="border-2 border-gray-300 p-3 w-2/3 rounded-md"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button
+            onClick={generateReport}
+            className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600"
+          >
+            Generate Report
+          </button>
+        </div>
+        <table className="w-full table-auto">
+          <thead>
+            <tr className="bg-indigo-100 text-gray-700">
+              <th className="py-3 px-6 text-left">Room Name</th>
+              <th className="py-3 px-6 text-left">Type</th>
+              <th className="py-3 px-6 text-left">Capacity</th>
+              <th className="py-3 px-6 text-left">Availability</th>
+              <th className="py-3 px-6 text-left">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {Array.isArray(rooms) &&
+              rooms
+                .filter((room) =>
+                  room.roomName.toLowerCase().includes(search.toLowerCase())
+                )
+                .map((room) => (
+                  <tr key={room._id} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-6">{room.roomName}</td>
+                    <td className="py-3 px-6">{room.type}</td>
+                    <td className="py-3 px-6">{room.capacity}</td>
+                    <td className="py-3 px-6">{room.availabilityStatus ? "Available" : "Unavailable"}</td>
+                    <td className="py-3 px-6">
+                      <button
+                        onClick={() => handleEdit(room)}
+                        className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mr-2"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(room._id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
-}
+};
+
+export default RoomManagement;
