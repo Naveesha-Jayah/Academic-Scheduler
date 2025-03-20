@@ -1,93 +1,118 @@
-const timeTable = require("../Model/timeTableModel")
+const TimeTable = require("../Model/timeTableModel");
 
-const getTimeTable = async (req, res , next) => {
-
-    let timeTableData;
-    try {
-        timeTableData = await timeTable.find();
-    } catch (error) {
-        console.log(error);
+const getTimeTable = async (req, res, next) => {
+  try {
+    const timeTableData = await TimeTable.find();
+    if (!timeTableData || timeTableData.length === 0) {
+      return res.status(404).json({ message: "No data found" });
     }
-
-    if (!timeTableData) {
-        return res.status(404).json({ message: "No data found" });
-    }
-
     return res.status(200).json(timeTableData);
-
-
-
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error" });
+  }
 };
 
-const addTimeTable = async (req, res , next) => {
+const addTimeTable = async (req, res, next) => {
+  const {
+    year,
+    semester,
+    moduleCode,
+    moduleName,
+    lectureName,
+    room,
+    timeSlot,
+    day,
+  } = req.body;
 
-    const {moduleCode, moduleName, lectureName, room, timeSlot} = req.body;
-    let timeTableData;
-    try{
-        timeTableData = new timeTable({moduleCode, moduleName, lectureName, room, timeSlot});
-        await timeTableData.save();
-    } catch (error) {
-        console.log(error);
-    }
+  // Log the incoming data to check if day is passed correctly
+  console.log(req.body);
 
-    if (!timeTableData) {
-        return res.status(404).json({ message: "No data found" });
-    }
-
-    return res.status(200).json(timeTableData);
+  try {
+    const timeTableData = new TimeTable({
+      year,
+      semester,
+      moduleCode,
+      moduleName,
+      lectureName,
+      room,
+      timeSlot,
+      day,
+    });
+    await timeTableData.save();
+    return res.status(201).json(timeTableData);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Error saving timetable" });
+  }
 };
 
 const getTimeTableById = async (req, res, next) => {
-    const timeTableId = req.params.id;
-    let timeTableData;
-    try {
-        timeTableData = await timeTable.findById(timeTableId);
-    } catch (error) {
-        console.log(error);
-    }
-
+  const timeTableId = req.params.id;
+  try {
+    const timeTableData = await TimeTable.findById(timeTableId);
     if (!timeTableData) {
-        return res.status(404).json({ message: "No data found" });
+      return res.status(404).json({ message: "No data found" });
     }
-
     return res.status(200).json(timeTableData);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error" });
+  }
 };
 
 const updateTimeTable = async (req, res, next) => {
-    const timeTableId = req.params.id;
-    const {moduleCode, moduleName, lectureName, room, timeSlot} = req.body;
-    let timeTableData;
-    try{
-        timeTableData = await timeTable.findByIdAndUpdate(timeTableId, {moduleCode, moduleName, lectureName, room, timeSlot});
-        timeTableData = await timeTableData.save(); 
-    } catch (error) {
-        console.log(error);
-    }
+  const timeTableId = req.params.id;
+  const {
+    moduleCode,
+    moduleName,
+    lectureName,
+    room,
+    timeSlot,
+    day,
+    year,
+    semester,
+  } = req.body;
+  
+  try {
+    let timeTableData = await TimeTable.findByIdAndUpdate(
+      timeTableId,
+      {
+        year,
+        semester,
+        moduleCode,
+        moduleName,
+        lectureName,
+        room,
+        timeSlot,
+        day,
+      },
+      { new: true }
+    );
 
     if (!timeTableData) {
-        return res.status(404).json({ message: "No data found" });
-    } else {
-        return res.status(200).json(timeTableData);
+      return res.status(404).json({ message: "No data found to update" });
     }
+    return res.status(200).json(timeTableData);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Error updating timetable" });
+  }
 };
 
 const deleteTimeTable = async (req, res, next) => {
-    const timeTableId = req.params.id;
-    let timeTableData;
-    try{
-        timeTableData = await timeTable.findByIdAndDelete(timeTableId);
-    } catch (error) {
-        console.log(error);
-    }
-
+  const timeTableId = req.params.id;
+  try {
+    const timeTableData = await TimeTable.findByIdAndDelete(timeTableId);
     if (!timeTableData) {
-        return res.status(404).json({ message: "No data found" });
-    } else {
-        return res.status(200).json(timeTableData);
+      return res.status(404).json({ message: "No data found to delete" });
     }
+    return res.status(200).json(timeTableData);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Error deleting timetable" });
+  }
 };
-
-
 
 exports.getTimeTable = getTimeTable;
 exports.addTimeTable = addTimeTable;
