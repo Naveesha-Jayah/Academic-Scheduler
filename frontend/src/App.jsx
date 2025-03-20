@@ -6,7 +6,8 @@ import Course from "./Components/Course & Lecturer Management/CourseManagement"
 import Lecture from "./Components/Course & Lecturer Management/LectureManagement"
 import TimeTable from "./Components/Timetable Scheduling/TimeTableManagement ";
 import Resource from "./Components/Room & Resource Management/ResourceManagement";
-import Room from "./Components/Room & Resource Management/RoomManagement"
+import Room from "./Components/Room & Resource Management/RoomManagement";
+import TimeTableSchedule from "./Components/Timetable Scheduling/TimeTableSchedule"
 
 
 
@@ -21,6 +22,7 @@ const App = () => {
           <Route path ="/TimeTable" element={<TimeTable/>} />
           <Route path ="/Room" element={<Room/>} />
           <Route path ="/Resource" element={<Resource/>} />
+          <Route path ="/TimeTableSchedule" element={<TimeTableSchedule/>} />
         </Routes>
       </main>
       <Footer />
