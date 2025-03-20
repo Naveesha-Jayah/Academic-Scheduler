@@ -8,16 +8,19 @@ const ResourceManagement = () => {
   const [form, setForm] = useState({
     roomName: "",
     type: "",
-    computers: 0,
-    projectors: 0,
-    whiteboards: 0,
+    computers: "",
+    projectors: "",
+    whiteboards: "",
     presentationSystem: false,
+    chair: "",
   });
   const [editingResource, setEditingResource] = useState(null);
   const [search, setSearch] = useState("");
+  const [rooms, setRooms] = useState([]); // For storing room names
 
   useEffect(() => {
     fetchResources();
+    fetchRooms(); // Fetch rooms to populate the dropdown
   }, []);
 
   const fetchResources = async () => {
@@ -31,6 +34,17 @@ const ResourceManagement = () => {
     }
   };
 
+  const fetchRooms = async () => {
+    try {
+      const response = await axiosInstance.get("/api/room");
+      console.log("Fetched Rooms:", response.data); // Debugging
+      setRooms(response.data); // Store rooms data
+    } catch (error) {
+      console.error("Error fetching rooms", error);
+      setRooms([]); // Prevent empty dropdown if error occurs
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     setForm({
@@ -41,6 +55,14 @@ const ResourceManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if the room name already exists
+    const duplicateRoom = resources.find((resource) => resource.roomName === form.roomName);
+    if (duplicateRoom) {
+      alert("This room name already exists! Please select a different room.");
+      return;
+    }
+
     try {
       if (editingResource) {
         await axiosInstance.put(`/api/resource/${editingResource._id}`, form);
@@ -50,10 +72,11 @@ const ResourceManagement = () => {
       setForm({
         roomName: "",
         type: "",
-        computers: 0,
-        projectors: 0,
-        whiteboards: 0,
+        computers: "",
+        projectors: "",
+        whiteboards: "",
         presentationSystem: false,
+        chair: "",
       });
       setEditingResource(null);
       fetchResources();
@@ -82,7 +105,7 @@ const ResourceManagement = () => {
     doc.text("Resource List Report", 20, 20);
     doc.autoTable({
       startY: 30,
-      head: [["Room Name", "Type", "Computers", "Projectors", "Whiteboards", "Presentation"]],
+      head: [["Room Name", "Type", "Computers", "Projectors", "Whiteboards", "Presentation", "Chair"]],
       body: resources.map((resource) => [
         resource.roomName,
         resource.type,
@@ -90,6 +113,7 @@ const ResourceManagement = () => {
         resource.projectors,
         resource.whiteboards,
         resource.presentationSystem ? "Yes" : "No",
+        resource.chair,
       ]),
     });
     doc.save("resource_report.pdf");
@@ -103,15 +127,22 @@ const ResourceManagement = () => {
       <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">Add or Edit Resource</h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <input
-            type="text"
+          {/* Room Name dropdown */}
+          <select
             name="roomName"
             value={form.roomName}
             onChange={handleChange}
-            placeholder="Room Name"
             className="border-2 border-gray-300 p-3 rounded-md"
             required
-          />
+          >
+            <option value="" disabled>Select Room</option>
+            {rooms.map((room) => (
+              <option key={room._id} value={room.roomName}>
+                {room.roomName}
+              </option>
+            ))}
+          </select>
+
           <input
             type="text"
             name="type"
@@ -145,6 +176,15 @@ const ResourceManagement = () => {
             value={form.whiteboards}
             onChange={handleChange}
             placeholder="Whiteboards"
+            className="border-2 border-gray-300 p-3 rounded-md"
+            required
+          />
+          <input
+            type="number"
+            name="chair"
+            value={form.chair}
+            onChange={handleChange}
+            placeholder="Chairs"
             className="border-2 border-gray-300 p-3 rounded-md"
             required
           />
@@ -194,6 +234,7 @@ const ResourceManagement = () => {
               <th className="py-3 px-6 text-left">Projectors</th>
               <th className="py-3 px-6 text-left">Whiteboards</th>
               <th className="py-3 px-6 text-left">Presentation</th>
+              <th className="py-3 px-6 text-left">Chairs</th>
               <th className="py-3 px-6 text-left">Actions</th>
             </tr>
           </thead>
@@ -211,6 +252,7 @@ const ResourceManagement = () => {
                     <td className="py-3 px-6">{resource.projectors}</td>
                     <td className="py-3 px-6">{resource.whiteboards}</td>
                     <td className="py-3 px-6">{resource.presentationSystem ? "Yes" : "No"}</td>
+                    <td className="py-3 px-6">{resource.chair}</td>
                     <td className="py-3 px-6">
                       <button onClick={() => handleEdit(resource)} className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mr-2">Edit</button>
                       <button onClick={() => handleDelete(resource._id)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Delete</button>

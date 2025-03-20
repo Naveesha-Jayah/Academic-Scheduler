@@ -10,7 +10,7 @@ const resourceSchema = new Schema({
         type: String,
         required: true
     },
-    computers: { // Changed to lowercase for consistency
+    computers: {
         type: Number,
         required: true
     },
@@ -23,7 +23,11 @@ const resourceSchema = new Schema({
         required: true
     },
     presentationSystem: {
-        type: Boolean, // Boolean makes more sense if it's a yes/no feature
+        type: Boolean,
+        required: true
+    },
+    chair: {
+        type: Number,
         required: true
     }
 });

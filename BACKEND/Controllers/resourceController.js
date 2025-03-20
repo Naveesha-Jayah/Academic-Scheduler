@@ -13,10 +13,9 @@ const getResource = async (req, res) => {
 };
 
 const addResource = async (req, res) => {
-    const { roomName, type, computers, projectors, whiteboards, presentationSystem } = req.body;
-
+    const { roomName, type, computers, projectors, whiteboards, presentationSystem, chair } = req.body;
     try {
-        const resourceData = new Resource({ roomName, type, computers, projectors, whiteboards, presentationSystem });
+        const resourceData = new Resource({ roomName, type, computers, projectors, whiteboards, presentationSystem, chair });
         await resourceData.save();
         return res.status(201).json(resourceData);
     } catch (error) {
