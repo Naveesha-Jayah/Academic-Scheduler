@@ -1,19 +1,19 @@
-const TimeTable = require("../Model/timeTableModel");
+const Time = require("../Model/timeTestModel");
 
-const getTimeTable = async (req, res, next) => {
+const getTime = async (req, res, next) => {
   try {
-    const timeTableData = await TimeTable.find();
-    if (!timeTableData || timeTableData.length === 0) {
+    const timeData = await Time.find();
+    if (!timeData || timeData.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
-    return res.status(200).json(timeTableData);
+    return res.status(200).json(timeData);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Server error" });
   }
 };
 
-const addTimeTable = async (req, res, next) => {
+const addTime = async (req, res, next) => {
   const {
     year,
     semester,
@@ -29,7 +29,7 @@ const addTimeTable = async (req, res, next) => {
   console.log(req.body);
 
   try {
-    const timeTableData = new TimeTable({
+    const timeData = new Time({
       year,
       semester,
       moduleCode,
@@ -39,30 +39,30 @@ const addTimeTable = async (req, res, next) => {
       timeSlot,
       day,
     });
-    await timeTableData.save();
-    return res.status(201).json(timeTableData);
+    await timeData.save();
+    return res.status(201).json(timeData);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Error saving timetable" });
   }
 };
 
-const getTimeTableById = async (req, res, next) => {
-  const timeTableId = req.params.id;
+const getTimeById = async (req, res, next) => {
+  const timeId = req.params.id;
   try {
-    const timeTableData = await TimeTable.findById(timeTableId);
-    if (!timeTableData) {
+    const timeData = await Time.findById(timeId);
+    if (!timeData) {
       return res.status(404).json({ message: "No data found" });
     }
-    return res.status(200).json(timeTableData);
+    return res.status(200).json(timeData);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Server error" });
   }
 };
 
-const updateTimeTable = async (req, res, next) => {
-  const timeTableId = req.params.id;
+const updateTime = async (req, res, next) => {
+  const timeId = req.params.id;
   const {
     moduleCode,
     moduleName,
@@ -75,8 +75,8 @@ const updateTimeTable = async (req, res, next) => {
   } = req.body;
   
   try {
-    let timeTableData = await TimeTable.findByIdAndUpdate(
-      timeTableId,
+    let timeData = await Time.findByIdAndUpdate(
+      timeId,
       {
         year,
         semester,
@@ -90,32 +90,32 @@ const updateTimeTable = async (req, res, next) => {
       { new: true }
     );
 
-    if (!timeTableData) {
+    if (!timeData) {
       return res.status(404).json({ message: "No data found to update" });
     }
-    return res.status(200).json(timeTableData);
+    return res.status(200).json(timeData);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Error updating timetable" });
   }
 };
 
-const deleteTimeTable = async (req, res, next) => {
-  const timeTableId = req.params.id;
+const deleteTime = async (req, res, next) => {
+  const timeId = req.params.id;
   try {
-    const timeTableData = await TimeTable.findByIdAndDelete(timeTableId);
-    if (!timeTableData) {
+    const timeData = await Time.findByIdAndDelete(timeId);
+    if (!timeData) {
       return res.status(404).json({ message: "No data found to delete" });
     }
-    return res.status(200).json(timeTableData);
+    return res.status(200).json(timeData);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Error deleting timetable" });
   }
 };
 
-exports.getTimeTable = getTimeTable;
-exports.addTimeTable = addTimeTable;
-exports.getTimeTableById = getTimeTableById;
-exports.updateTimeTable = updateTimeTable;
-exports.deleteTimeTable = deleteTimeTable;
+exports.getTime = getTime;
+exports.addTime = addTime;
+exports.getTimeById = getTimeById;
+exports.updateTime = updateTime;
+exports.deleteTime = deleteTime;
