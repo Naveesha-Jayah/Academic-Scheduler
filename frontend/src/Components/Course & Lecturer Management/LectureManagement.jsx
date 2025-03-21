@@ -13,6 +13,8 @@ const LectureManagement = () => {
   });
   const [editingLecture, setEditingLecture] = useState(null);
   const [search, setSearch] = useState("");
+  const [selectedModule, setSelectedModule] = useState(""); // State for selected module filter
+  const [error, setError] = useState(""); // State for error message
 
   useEffect(() => {
     fetchLectures();
@@ -39,10 +41,26 @@ const LectureManagement = () => {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError(""); // Clear error message when user types
+  };
+
+  const validateLectureID = (lectureID) => {
+    // Check if the lectureID already exists in the lectures array
+    const isDuplicate = lectures.some(
+      (lecture) => lecture.lectureID === lectureID && lecture._id !== editingLecture?._id
+    );
+    return !isDuplicate; // Return true if the lectureID is unique
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate lectureID
+    if (!validateLectureID(form.lectureID)) {
+      setError("Lecture ID already exists. Please use a unique ID.");
+      return;
+    }
+
     try {
       if (editingLecture) {
         await axiosInstance.put(`/api/lecture/${editingLecture._id}`, form);
@@ -51,6 +69,7 @@ const LectureManagement = () => {
       }
       setForm({ lectureID: "", lectureName: "", email: "", moduleName: "" });
       setEditingLecture(null);
+      setError(""); // Clear error message on successful submission
       fetchLectures();
     } catch (error) {
       console.error("Error saving lecture", error);
@@ -60,6 +79,7 @@ const LectureManagement = () => {
   const handleEdit = (lecture) => {
     setForm(lecture);
     setEditingLecture(lecture);
+    setError(""); // Clear error message when editing
   };
 
   const handleDelete = async (id) => {
@@ -93,6 +113,13 @@ const LectureManagement = () => {
     doc.save("lecture_report.pdf");
   };
 
+  // Filter lectures based on search term and selected module
+  const filteredLectures = lectures.filter((lecture) => {
+    const matchesSearch = lecture.lectureName.toLowerCase().includes(search.toLowerCase());
+    const matchesModule = selectedModule ? lecture.moduleName === selectedModule : true;
+    return matchesSearch && matchesModule;
+  });
+
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Lecture Management</h1>
@@ -102,6 +129,7 @@ const LectureManagement = () => {
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
           {editingLecture ? "Edit Lecture" : "Add New Lecture"}
         </h2>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <input
             type="text"
@@ -146,7 +174,7 @@ const LectureManagement = () => {
           </select>
           <button
             type="submit"
-            className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition-colors sm:col-span-2"
+            className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition-colors w-50"
           >
             {editingLecture ? "Update Lecture" : "Add Lecture"}
           </button>
@@ -160,10 +188,22 @@ const LectureManagement = () => {
           <input
             type="text"
             placeholder="Search lectures..."
-            className="border-2 border-gray-300 p-3 w-2/3 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border-2 border-gray-300 p-3 w-1/3 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <select
+            value={selectedModule}
+            onChange={(e) => setSelectedModule(e.target.value)}
+            className="border-2 border-gray-300 p-3 w-1/3 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">All Modules</option>
+            {courses.map((course) => (
+              <option key={course._id} value={course.moduleName}>
+                {course.moduleName}
+              </option>
+            ))}
+          </select>
           <button
             onClick={generateReport}
             className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition-colors"
@@ -182,32 +222,28 @@ const LectureManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {lectures
-              .filter((lecture) =>
-                lecture.lectureName.toLowerCase().includes(search.toLowerCase())
-              )
-              .map((lecture) => (
-                <tr key={lecture._id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-6">{lecture.lectureID}</td>
-                  <td className="py-3 px-6">{lecture.lectureName}</td>
-                  <td className="py-3 px-6">{lecture.email}</td>
-                  <td className="py-3 px-6">{lecture.moduleName}</td>
-                  <td className="py-3 px-6">
-                    <button
-                      onClick={() => handleEdit(lecture)}
-                      className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(lecture._id)}
-                      className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+            {filteredLectures.map((lecture) => (
+              <tr key={lecture._id} className="border-b hover:bg-gray-50">
+                <td className="py-3 px-6">{lecture.lectureID}</td>
+                <td className="py-3 px-6">{lecture.lectureName}</td>
+                <td className="py-3 px-6">{lecture.email}</td>
+                <td className="py-3 px-6">{lecture.moduleName}</td>
+                <td className="py-3 px-6">
+                  <button
+                    onClick={() => handleEdit(lecture)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(lecture._id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
