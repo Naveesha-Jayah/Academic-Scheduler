@@ -243,6 +243,8 @@ const ResourceManagement = () => {
               resources
                 .filter((resource) =>
                   resource.roomName.toLowerCase().includes(search.toLowerCase())
+                  || resource.type.toLowerCase().includes(search.toLowerCase())
+                  || resource.chair.toString().includes(search.toLowerCase())
                 )
                 .map((resource) => (
                   <tr key={resource._id} className="border-b hover:bg-gray-50">

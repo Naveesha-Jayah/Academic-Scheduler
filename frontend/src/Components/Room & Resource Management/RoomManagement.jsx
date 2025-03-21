@@ -171,6 +171,8 @@ const RoomManagement = () => {
               rooms
                 .filter((room) =>
                   room.roomName.toLowerCase().includes(search.toLowerCase())
+                  || room.type.toLowerCase().includes(search.toLowerCase())
+                  || room.capacity.toString().includes(search)
                 )
                 .map((room) => (
                   <tr key={room._id} className="border-b hover:bg-gray-50">
