@@ -9,6 +9,11 @@ const courseRoute = require("./Route/courseRoute");
 const lectureRoute = require("./Route/lectureRoute");
 const roomRoute = require("./Route/roomRoute");
 const resourceRoute = require("./Route/resourceRoute");
+const authRoute = require("./Route/authRoute");
+const scheduleRoutes = require("./Route/scheduleRoutes");
+const conflictRoutes = require("./Route/conflictRoutes");
+const conflictResolutionRoutes = require("./Route/conflictResolutionRoutes");
+
 
 const app = express();
 
@@ -22,6 +27,11 @@ app.use("/api/course",courseRoute);
 app.use("/api/lecture",lectureRoute);
 app.use("/api/room",roomRoute);
 app.use("/api/resource",resourceRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/schedule", scheduleRoutes);
+app.use("/api/conflict", conflictRoutes);
+app.use("/api/conflict-resolution", conflictResolutionRoutes);
+
 
 //database connection
 mongoose

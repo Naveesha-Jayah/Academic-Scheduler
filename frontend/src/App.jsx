@@ -7,8 +7,12 @@ import Lecture from "./Components/Course & Lecturer Management/LectureManagement
 import TimeTable from "./Components/Timetable Scheduling/TimeTableManagement ";
 import Room from "./Components/Room & Resource Management/RoomManagement"
 import Resource from "./Components/Room & Resource Management/ResourceManagement";
-
-
+import Register from "./Components/User Registration & Management/register";
+import Login from "./Components/User Registration & Management/Login";
+import Conflicts from "./Components/AI-Powered Conflict Resolution/Conflicts";
+import ConflictList from "./Components/AI-Powered Conflict Resolution/ConflictList";
+import ResolveConflicts from "./Components/AI-Powered Conflict Resolution/ResolveConflicts";
+import Profile from "./Components/User Registration & Management/Profile";
 
 const App = () => {
   return (
@@ -21,6 +25,12 @@ const App = () => {
           <Route path ="/TimeTable" element={<TimeTable/>} />
           <Route path ="/Room" element={<Room/>} />
           <Route path ="/Resource" element={<Resource/>} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} /> 
+          <Route path="/Conflicts" element={<Conflicts/>} />
+          <Route path="/ConflictList" element={<ConflictList/>} />
+          <Route path="/ResolveConflicts" element={<ResolveConflicts/>} />
+          <Route path="/profile" element={<Profile/>}/>
         </Routes>
       </main>
       <Footer />
