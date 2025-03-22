@@ -17,6 +17,8 @@ const ResourceManagement = () => {
   const [editingResource, setEditingResource] = useState(null);
   const [search, setSearch] = useState("");
   const [rooms, setRooms] = useState([]); // For storing room names
+  const [errors, setErrors] = useState({}); // To handle validation errors
+  const [filterType, setFilterType] = useState("all"); // New state for filtering by room type
 
   useEffect(() => {
     fetchResources();
@@ -47,14 +49,66 @@ const ResourceManagement = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
+
+    // Allow only numbers for specific fields
+    if (["computers", "projectors", "whiteboards", "chair"].includes(name)) {
+      // Use a regular expression to allow only digits (0-9)
+      if (!/^\d*$/.test(value)) {
+        return; // Do not update the state if the value is not a number
+      }
+
+      // Ensure the value is a 4-digit number
+      if (value.length > 4) {
+        return; // Do not update the state if the value exceeds 4 digits
+      }
+    }
+
     setForm({
       ...form,
       [name]: type === "checkbox" ? e.target.checked : value,
     });
+
+    // Clear the error for the field when it changes
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: null,
+      });
+    }
+
+    // If roomName changes, auto-populate the type
+    if (name === "roomName") {
+      const selectedRoom = rooms.find((room) => room.roomName === value);
+      if (selectedRoom) {
+        setForm((prevForm) => ({
+          ...prevForm,
+          type: selectedRoom.type, // Auto-populate the type
+        }));
+      }
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validate capacity fields (must be a 4-digit number)
+    const numberFields = ["computers", "projectors", "whiteboards", "chair"];
+    numberFields.forEach((field) => {
+      if (!/^\d{4}$/.test(form[field])) {
+        newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} must be a 4-digit number.`;
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return; // Stop form submission if validation fails
+    }
 
     // Check if the room name already exists
     const duplicateRoom = resources.find((resource) => resource.roomName === form.roomName);
@@ -119,6 +173,13 @@ const ResourceManagement = () => {
     doc.save("resource_report.pdf");
   };
 
+  // Filter resources based on search and selected type
+  const filteredResources = resources.filter((resource) => {
+    const matchesSearch = resource.roomName.toLowerCase().includes(search.toLowerCase());
+    const matchesType = filterType === "all" || resource.type === filterType;
+    return matchesSearch && matchesType;
+  });
+
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Resource Management</h1>
@@ -143,6 +204,7 @@ const ResourceManagement = () => {
             ))}
           </select>
 
+          {/* Type field (auto-populated) */}
           <input
             type="text"
             name="type"
@@ -151,43 +213,74 @@ const ResourceManagement = () => {
             placeholder="Type"
             className="border-2 border-gray-300 p-3 rounded-md"
             required
+            readOnly // Make it read-only since it's auto-populated
           />
-          <input
-            type="number"
-            name="computers"
-            value={form.computers}
-            onChange={handleChange}
-            placeholder="Computers"
-            className="border-2 border-gray-300 p-3 rounded-md"
-            required
-          />
-          <input
-            type="number"
-            name="projectors"
-            value={form.projectors}
-            onChange={handleChange}
-            placeholder="Projectors"
-            className="border-2 border-gray-300 p-3 rounded-md"
-            required
-          />
-          <input
-            type="number"
-            name="whiteboards"
-            value={form.whiteboards}
-            onChange={handleChange}
-            placeholder="Whiteboards"
-            className="border-2 border-gray-300 p-3 rounded-md"
-            required
-          />
-          <input
-            type="number"
-            name="chair"
-            value={form.chair}
-            onChange={handleChange}
-            placeholder="Chairs"
-            className="border-2 border-gray-300 p-3 rounded-md"
-            required
-          />
+
+          {/* Computers field */}
+          <div>
+            <input
+              type="text" // Changed to text to handle input validation
+              name="computers"
+              value={form.computers}
+              onChange={handleChange}
+              placeholder="Computers"
+              className="border-2 border-gray-300 p-3 rounded-md w-full"
+              required
+            />
+            {errors.computers && (
+              <p className="text-red-500 text-sm mt-1">{errors.computers}</p>
+            )}
+          </div>
+
+          {/* Projectors field */}
+          <div>
+            <input
+              type="text" // Changed to text to handle input validation
+              name="projectors"
+              value={form.projectors}
+              onChange={handleChange}
+              placeholder="Projectors "
+              className="border-2 border-gray-300 p-3 rounded-md w-full"
+              required
+            />
+            {errors.projectors && (
+              <p className="text-red-500 text-sm mt-1">{errors.projectors}</p>
+            )}
+          </div>
+
+          {/* Whiteboards field */}
+          <div>
+            <input
+              type="text" // Changed to text to handle input validation
+              name="whiteboards"
+              value={form.whiteboards}
+              onChange={handleChange}
+              placeholder="Whiteboards "
+              className="border-2 border-gray-300 p-3 rounded-md w-full"
+              required
+            />
+            {errors.whiteboards && (
+              <p className="text-red-500 text-sm mt-1">{errors.whiteboards}</p>
+            )}
+          </div>
+
+          {/* Chairs field */}
+          <div>
+            <input
+              type="text" // Changed to text to handle input validation
+              name="chair"
+              value={form.chair}
+              onChange={handleChange}
+              placeholder="Chairs "
+              className="border-2 border-gray-300 p-3 rounded-md w-full"
+              required
+            />
+            {errors.chair && (
+              <p className="text-red-500 text-sm mt-1">{errors.chair}</p>
+            )}
+          </div>
+
+          {/* Presentation System checkbox */}
           <label className="flex items-center space-x-3">
             <input
               type="checkbox"
@@ -198,6 +291,8 @@ const ResourceManagement = () => {
             />
             <span className="text-gray-700">Has Presentation System</span>
           </label>
+
+          {/* Submit button */}
           <button
             type="submit"
             className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 sm:col-span-2"
@@ -218,6 +313,15 @@ const ResourceManagement = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="border-2 border-gray-300 p-3 rounded-md"
+          >
+            <option value="all">All Rooms</option>
+            <option value="Lecture Room">Lecture Rooms</option>
+            <option value="Lab Room">Lab Rooms</option>
+          </select>
           <button
             onClick={generateReport}
             className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600"
@@ -239,26 +343,21 @@ const ResourceManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(resources) &&
-              resources
-                .filter((resource) =>
-                  resource.roomName.toLowerCase().includes(search.toLowerCase())
-                )
-                .map((resource) => (
-                  <tr key={resource._id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-6">{resource.roomName}</td>
-                    <td className="py-3 px-6">{resource.type}</td>
-                    <td className="py-3 px-6">{resource.computers}</td>
-                    <td className="py-3 px-6">{resource.projectors}</td>
-                    <td className="py-3 px-6">{resource.whiteboards}</td>
-                    <td className="py-3 px-6">{resource.presentationSystem ? "Yes" : "No"}</td>
-                    <td className="py-3 px-6">{resource.chair}</td>
-                    <td className="py-3 px-6">
-                      <button onClick={() => handleEdit(resource)} className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mr-2">Edit</button>
-                      <button onClick={() => handleDelete(resource._id)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Delete</button>
-                    </td>
-                  </tr>
-                ))}
+            {filteredResources.map((resource) => (
+              <tr key={resource._id} className="border-b hover:bg-gray-50">
+                <td className="py-3 px-6">{resource.roomName}</td>
+                <td className="py-3 px-6">{resource.type}</td>
+                <td className="py-3 px-6">{resource.computers}</td>
+                <td className="py-3 px-6">{resource.projectors}</td>
+                <td className="py-3 px-6">{resource.whiteboards}</td>
+                <td className="py-3 px-6">{resource.presentationSystem ? "Yes" : "No"}</td>
+                <td className="py-3 px-6">{resource.chair}</td>
+                <td className="py-3 px-6">
+                  <button onClick={() => handleEdit(resource)} className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mr-2">Edit</button>
+                  <button onClick={() => handleDelete(resource._id)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Delete</button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

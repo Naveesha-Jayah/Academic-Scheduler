@@ -74,7 +74,7 @@ const NavBar = () => {
           <ul className="mt-5 space-y-2">
             <li>
               <Link
-                to="/Home"
+                to="/"
                 className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
               >
                 🏠 Home
@@ -85,12 +85,20 @@ const NavBar = () => {
                 to="/Course"
                 className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
               >
-                📚 Courses & Lecturers
+                📚 Courses 
               </Link>
             </li>
             <li>
               <Link
-                to="/TimeTable"
+                to="/Lecture"
+                className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
+              >
+                👩 Lecturers
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/TimeTest"
                 className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
               >
                 📅 Timetable Schedule
