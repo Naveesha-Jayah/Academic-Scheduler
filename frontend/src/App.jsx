@@ -10,6 +10,7 @@ import Resource from "./Components/Room & Resource Management/ResourceManagement
 import Room from "./Components/Room & Resource Management/RoomManagement";
 import TimeTableSchedule from "./Components/Timetable Scheduling/TimeTableSchedule"
 import TimeTest from "./Components/TimeTest/timeTest";
+import Timetable from "./Components/TimeTest/timeTable";
 import StudentProfile from  "./Components/Dashboads/StudentProfile"
 
 
@@ -20,7 +21,7 @@ const App = () => {
       <NavBar />
       <main className="flex-1 p-6 md:p-10 bg-base-100">
         <Routes>
-          <Route path="/Home" element={<HomePage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path = "/Course" element={<Course/>} />
           <Route path = "/Lecture" element={<Lecture/>} />
           <Route path ="/TimeTable" element={<TimeTable/>} />
@@ -28,6 +29,7 @@ const App = () => {
           <Route path ="/Resource" element={<Resource/>} />
           <Route path ="/TimeTableSchedule" element={<TimeTableSchedule/>} />
           <Route path ="/TimeTest" element={<TimeTest/>} />
+          <Route path ="/Timetable" element={<Timetable/>} />
           <Route path ="/StudentProfile" element={<StudentProfile/>} />
 
         </Routes>
