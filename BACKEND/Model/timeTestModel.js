@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const timeTableSchema = new Schema({
+const timeSchema = new Schema({
   moduleCode: {
     type: String,
     required: true,
@@ -35,4 +35,4 @@ const timeTableSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model("TimeTable", timeTableSchema);
+module.exports = mongoose.model("Time", timeSchema);

@@ -1,39 +1,35 @@
-const mongoose = require ("mongoose")
-const schema = mongoose.Schema
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
-const resourceSchema = new schema({
-
+const resourceSchema = new Schema({
     roomName: {
         type: String,
         required: true
     },
-
     type: {
         type: String,
         required: true
     },
-
-    Computers: {
-        type: String,
+    computers: {
+        type: Number,
         required: true
     },
-
     projectors: {
-        type: String,
+        type: Number,
         required: true
     },
-
     whiteboards: {
-        type: String,
-        required: true
-    }, 
-
-    presentationSystem: {
-        type: String,
+        type: Number,
         required: true
     },
+    presentationSystem: {
+        type: Boolean,
+        required: true
+    },
+    chair: {
+        type: Number,
+        required: true
+    }
+});
 
-    
-})
-
-module.exports = mongoose.model("resourceModel", resourceSchema)
+module.exports = mongoose.model("Resource", resourceSchema);

@@ -90,12 +90,20 @@ const NavBar = () => {
                 to="/Course"
                 className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
               >
-                📚 Courses & Lecturers
+                📚 Courses 
               </Link>
             </li>
             <li>
               <Link
-                to="/TimeTable"
+                to="/Lecture"
+                className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
+              >
+                👩 Lecturers
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/TimeTest"
                 className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
               >
                 📅 Timetable Schedule
@@ -103,12 +111,21 @@ const NavBar = () => {
             </li>
             <li>
               <Link
-                to="/schedule"
+                to="/Room"
                 className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
               >
-                🚪 Rooms & Resources
+                🚪 Rooms
               </Link>
             </li>
+            <li>
+              <Link
+                to="/Resource"
+                className="flex items-center p-3 rounded-lg hover:bg-base-200 transition"
+              >
+                💻 Resources
+              </Link>
+            </li>
+            <li></li>
             <li>
               <Link
                 to="/Conflicts"
@@ -122,7 +139,7 @@ const NavBar = () => {
 
         {/* Overlay (Click to Close) */}
         <div
-          className="flex-1 bg-white bg-opacity-50"
+          className="flex-1 backdrop:brightness-200 bg-opacity-40" // Changed to a more transparent overlay
           onClick={() => setIsOpen(false)}
         ></div>
       </div>
