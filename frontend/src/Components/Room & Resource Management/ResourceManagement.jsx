@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../Lib/axios";
 import jsPDF from "jspdf";
-// import "jspdf-autotable";
+import "jspdf-autotable"; // Import the autoTable plugin
 
 const ResourceManagement = () => {
   const [resources, setResources] = useState([]); // Ensure initial state is an array
@@ -56,11 +56,6 @@ const ResourceManagement = () => {
       if (!/^\d*$/.test(value)) {
         return; // Do not update the state if the value is not a number
       }
-
-      // Ensure the value is a 4-digit number
-      if (value.length > 4) {
-        return; // Do not update the state if the value exceeds 4 digits
-      }
     }
 
     setForm({
@@ -91,11 +86,11 @@ const ResourceManagement = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate capacity fields (must be a 4-digit number)
+    // Validate that fields contain only numbers
     const numberFields = ["computers", "projectors", "whiteboards", "chair"];
     numberFields.forEach((field) => {
-      if (!/^\d{4}$/.test(form[field])) {
-        newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} must be a 4-digit number.`;
+      if (!/^\d+$/.test(form[field])) {
+        newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} must be a number.`;
       }
     });
 
@@ -155,21 +150,41 @@ const ResourceManagement = () => {
 
   const generateReport = () => {
     const doc = new jsPDF();
+
+    // Add title to the PDF
     doc.setFontSize(18);
     doc.text("Resource List Report", 20, 20);
+
+    // Define the columns for the table
+    const columns = [
+      "Room Name",
+      "Type",
+      "Computers",
+      "Projectors",
+      "Whiteboards",
+      "Presentation",
+      "Chairs",
+    ];
+
+    // Map the resources data to the table rows
+    const rows = resources.map((resource) => [
+      resource.roomName,
+      resource.type,
+      resource.computers,
+      resource.projectors,
+      resource.whiteboards,
+      resource.presentationSystem ? "Yes" : "No",
+      resource.chair,
+    ]);
+
+    // Generate the table using autoTable
     doc.autoTable({
-      startY: 30,
-      head: [["Room Name", "Type", "Computers", "Projectors", "Whiteboards", "Presentation", "Chair"]],
-      body: resources.map((resource) => [
-        resource.roomName,
-        resource.type,
-        resource.computers,
-        resource.projectors,
-        resource.whiteboards,
-        resource.presentationSystem ? "Yes" : "No",
-        resource.chair,
-      ]),
+      startY: 30, // Start the table below the title
+      head: [columns], // Table header
+      body: rows, // Table data
     });
+
+    // Save the PDF
     doc.save("resource_report.pdf");
   };
 
@@ -239,7 +254,7 @@ const ResourceManagement = () => {
               name="projectors"
               value={form.projectors}
               onChange={handleChange}
-              placeholder="Projectors "
+              placeholder="Projectors"
               className="border-2 border-gray-300 p-3 rounded-md w-full"
               required
             />
@@ -255,7 +270,7 @@ const ResourceManagement = () => {
               name="whiteboards"
               value={form.whiteboards}
               onChange={handleChange}
-              placeholder="Whiteboards "
+              placeholder="Whiteboards"
               className="border-2 border-gray-300 p-3 rounded-md w-full"
               required
             />
@@ -271,7 +286,7 @@ const ResourceManagement = () => {
               name="chair"
               value={form.chair}
               onChange={handleChange}
-              placeholder="Chairs "
+              placeholder="Chairs"
               className="border-2 border-gray-300 p-3 rounded-md w-full"
               required
             />

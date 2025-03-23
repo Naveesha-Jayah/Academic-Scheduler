@@ -33,7 +33,8 @@ const RoomManagement = () => {
     const { name, value, type } = e.target;
 
     if (name === "capacity") {
-      if (/^\d{0,4}$/.test(value)) {
+      // Only allow numeric input for capacity and ensure it's not negative
+      if (/^\d*$/.test(value) && value >= 0) {
         setForm({
           ...form,
           [name]: value,
@@ -59,8 +60,8 @@ const RoomManagement = () => {
 
     if (form.capacity <= 0 || isNaN(form.capacity)) {
       newErrors.capacity = "Capacity must be a positive number.";
-    } else if (form.capacity.length !== 4) {
-      newErrors.capacity = "Capacity must be exactly 4 digits.";
+    } else if (form.capacity < 0) {
+      newErrors.capacity = "Capacity cannot be negative.";
     }
 
     setErrors(newErrors);
@@ -106,16 +107,21 @@ const RoomManagement = () => {
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text("Room List Report", 20, 20);
+
+    const columns = ["Room Name", "Type", "Capacity", "Availability"];
+    const rows = rooms.map((room) => [
+      room.roomName,
+      room.type,
+      room.capacity,
+      room.availabilityStatus ? "Available" : "Unavailable",
+    ]);
+
     doc.autoTable({
       startY: 30,
-      head: [["Room Name", "Type", "Capacity", "Availability"]],
-      body: rooms.map((room) => [
-        room.roomName,
-        room.type,
-        room.capacity,
-        room.availabilityStatus ? "Available" : "Unavailable",
-      ]),
+      head: [columns],
+      body: rows,
     });
+
     doc.save("room_report.pdf");
   };
 
@@ -160,11 +166,7 @@ const RoomManagement = () => {
             placeholder="Capacity"
             className="border-2 border-gray-300 p-3 rounded-md"
             required
-            min="1"
-            maxLength="4"
-            onInput={(e) => {
-              e.target.value = e.target.value.slice(0, 4);
-            }}
+            min="0"
           />
           {errors.capacity && (
             <p className="text-red-500 text-sm">{errors.capacity}</p>
