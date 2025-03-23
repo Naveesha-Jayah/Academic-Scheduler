@@ -1,69 +1,89 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import axiosInstance from "../../Lib/axios";
 
 const Conflicts = () => {
-    const [conflicts, setConflicts] = useState([]);
+  const [conflicts, setConflicts] = useState([]);
+  const navigate = useNavigate(); // Initialize useNavigate
 
-    useEffect(() => {
-        const fetchConflicts = async () => {
-            try {
-                const response = await axiosInstance.get("/api/detect-conflicts");
-                setConflicts(response.data);
-            } catch (error) {
-                console.error("Error fetching conflicts", error);
-            }
-        };
+  useEffect(() => {
+    fetchConflicts();
+  }, []);
 
-        fetchConflicts();
-    }, []);
+  const fetchConflicts = async () => {
+    try {
+      const response = await axiosInstance.get("/api/timeTable");
+      const timeTables = response.data;
 
-    return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10">
-            <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-3xl">
-                <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">
-                    📌 Schedule Conflicts
-                </h2>
+      const isOverlapping = (time1, time2) => {
+        const [start1, end1] = time1.split(" - ").map(t => t.trim());
+        const [start2, end2] = time2.split(" - ").map(t => t.trim());
+        return !(end1 <= start2 || end2 <= start1);
+      };
 
-                {conflicts.length === 0 ? (
-                    <p className="text-gray-600 text-center">✅ No conflicts found!</p>
-                ) : (
-                    <div className="space-y-4">
-                        {conflicts.map((conflict, index) => (
-                            <div key={index} className="bg-red-100 border-l-4 border-red-500 p-4 rounded-lg shadow-sm">
-                                <h3 className="text-lg font-semibold text-red-700">
-                                    ⚠️ Conflict Detected
-                                </h3>
-                                <p className="text-gray-700 mt-2">
-                                    <span className="font-semibold text-gray-900">Course 1:</span> {conflict.schedule1.courseName} 
-                                    <br />
-                                    <span className="font-semibold text-gray-900">Course 2:</span> {conflict.schedule2.courseName}
-                                </p>
-                                <p className="text-gray-700 mt-2">
-                                    <span className="font-semibold text-gray-900">Room:</span> {conflict.schedule1.room}
-                                </p>
-                                <p className="text-gray-600 text-sm mt-2">
-                                    <span className="font-semibold">Status:</span> 
-                                    <span className="ml-1 px-2 py-1 rounded-md text-white text-xs font-bold" 
-                                        style={{ backgroundColor: conflict.resolved ? "green" : "red" }}>
-                                        {conflict.resolved ? "Resolved" : "Unresolved"}
-                                    </span>
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-                <div className="flex justify-center mt-6">
-                    <button
-                         type="submit"
-                         className="bg-blue-400 text-white px-6 py-3 rounded-md hover:bg-blue-500 transition-colors shadow-md"
-                    >
-                    Conflicts List
-                    </button>
-                </div>
+      const conflictsList = [];
+      timeTables.forEach((entry, i) => {
+        timeTables.forEach((otherEntry, j) => {
+          if (
+            i !== j &&
+            entry.day === otherEntry.day &&
+            entry.room === otherEntry.room &&
+            isOverlapping(entry.timeSlot, otherEntry.timeSlot)
+          ) {
+            conflictsList.push(entry);
+          }
+        });
+      });
 
-            </div>
-        </div>
-    );
+      setConflicts(conflictsList);
+    } catch (error) {
+      console.error("Error fetching timetable conflicts", error);
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold text-center mb-4">Time Table Conflicts</h1>
+      <table className="min-w-full bg-white border border-gray-300">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="py-2 px-4 border">Day</th>
+            <th className="py-2 px-4 border">Module</th>
+            <th className="py-2 px-4 border">Lecture</th>
+            <th className="py-2 px-4 border">Room</th>
+            <th className="py-2 px-4 border">Time Slot</th>
+          </tr>
+        </thead>
+        <tbody>
+          {conflicts.length > 0 ? (
+            conflicts.map((entry, index) => (
+              <tr key={index} className="border">
+                <td className="py-2 px-4 border">{entry.day}</td>
+                <td className="py-2 px-4 border">{entry.moduleName}</td>
+                <td className="py-2 px-4 border">{entry.lectureName}</td>
+                <td className="py-2 px-4 border">{entry.room}</td>
+                <td className="py-2 px-4 border">{entry.timeSlot}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5" className="py-4 text-center text-gray-500">No Conflicts Found</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      {/* Button to navigate to Conflict List page */}
+      <div className="text-center mt-6">
+        <button
+          onClick={() => navigate("/conflict-list")}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Conflicts List
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default Conflicts;

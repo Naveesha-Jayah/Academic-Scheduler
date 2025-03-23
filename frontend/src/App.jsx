@@ -42,6 +42,7 @@ const App = () => {
           <Route path ="/TimeTest" element={<TimeTest/>} />
           <Route path ="/Timetable" element={<Timetable/>} />
           <Route path ="/StudentProfile" element={<StudentProfile/>} />
+          <Route path="/conflict-list" element={<ConflictList />} />
         </Routes>
       </main>
       <Footer />
