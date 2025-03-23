@@ -7,7 +7,7 @@ import Course from "./Components/Course & Lecturer Management/CourseManagement"
 import Lecture from "./Components/Course & Lecturer Management/LectureManagement"
 import TimeTable from "./Components/Timetable Scheduling/TimeTableManagement ";
 import Resource from "./Components/Room & Resource Management/ResourceManagement";
-import Register from "./Components/User Registration & Management/register";
+import Register from "./Components/User Registration & Management/Register";
 import Login from "./Components/User Registration & Management/Login";
 import Conflicts from "./Components/AI-Powered Conflict Resolution/Conflicts";
 import ConflictList from "./Components/AI-Powered Conflict Resolution/ConflictList";
