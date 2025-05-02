@@ -33,11 +33,6 @@ const NavBar = () => {
           <a className="btn btn-ghost text-xl font-bold">EduScheduler</a>
         </div>
 
-        <div className="flex space-x-4">
-          <Link to="/login" className="btn btn-sm btn-outline">Login</Link>
-          <Link to="/register" className="btn btn-sm btn-primary">Register</Link>
-        </div>
-
         {/* Profile Button */}
         <button className="btn btn-square btn-ghost">
           <svg
