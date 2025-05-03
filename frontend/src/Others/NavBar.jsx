@@ -33,7 +33,6 @@ const NavBar = () => {
           <a className="btn btn-ghost text-xl font-bold">Academic-Scheduler</a>
         </div>
 
-        
 
         {/* Profile Button */}
         <button className="btn btn-square btn-ghost">
