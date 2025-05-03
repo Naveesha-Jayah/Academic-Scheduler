@@ -30,8 +30,9 @@ const NavBar = () => {
 
         {/* Navbar Title */}
         <div className="flex-1 px-4">
-          <a className="btn btn-ghost text-xl font-bold">EduScheduler</a>
+          <a className="btn btn-ghost text-xl font-bold">Academic-Scheduler</a>
         </div>
+
 
         {/* Profile Button */}
         <button className="btn btn-square btn-ghost">
